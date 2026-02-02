@@ -1,6 +1,14 @@
-# Welcome to your Expo app 👋
+# FiveThreeOne 💪
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A React Native app for calculating training weights based on Jim Wendler's 5/3/1 strength program.
+
+## Features
+
+- Comic-style animated splash screen
+- Input fields for 4 main lifts (Bench, Squat, OHP, Deadlift)
+- Calculates 4-week training cycles with proper percentages
+- Weight rounding to practical plate increments
+- Supports kg and lbs units
 
 ## Get started
 
@@ -25,15 +33,26 @@ In the output, you'll find options to open the app in a
 
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
-## Get a fresh project
+## Quality Checks
 
-When you're ready, run:
+Run quality checks before committing:
 
 ```bash
-npm run reset-project
-```
+# Run ESLint
+make lint-frontend
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+# Run TypeScript type-check + ESLint
+make sast-frontend
+
+# Run Jest tests
+make test-frontend
+
+# Run all checks
+make all-checks
+
+# Run tests with coverage
+make test-coverage
+```
 
 ## Learn more
 

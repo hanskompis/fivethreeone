@@ -60,3 +60,7 @@ This is an Expo React Native application using file-based routing.
 - Use Jest and React Native Testing Library for testing
 - Place test files alongside the components they test with a `.test.tsx` suffix
 - Ensure tests cover edge cases and error handling
+
+## TODO.md
+- Maintain a `TODO.md` file at the root of the project
+- Update the TODO list regularly based on planning sessions and retrospectives
