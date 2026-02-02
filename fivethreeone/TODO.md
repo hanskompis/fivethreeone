@@ -275,6 +275,54 @@ Build an Expo React Native app for calculating 5/3/1 training program weights ba
 
 ---
 
+### 8. Per-Lift Settings Configuration
+
+**Status:** [x] Complete
+
+**Description:** Enhance settings to allow individual configuration of weight increment and rounding mode for each lift. Different lifts may benefit from different rounding (e.g., smaller increments for OHP vs larger for deadlift).
+
+**Sub-tasks:**
+- [x] Update `types/program.ts`:
+  - Add `RoundingMode` type: `'down' | 'nearest' | 'up'` ✅
+  - Add `LiftSettings` interface with `increment` and `roundingMode` per lift ✅
+  - Update `Settings` interface to include per-lift settings ✅
+- [x] Update `hooks/useSettings.ts`:
+  - Support per-lift increment values ✅
+  - Support per-lift rounding mode ✅
+  - Migrate existing global setting to per-lift structure ✅
+- [x] Update `app/settings.tsx`:
+  - Add collapsible/expandable section for each lift ✅
+  - Show increment selector per lift (2.5 / 5 / 10 kg) ✅
+  - Show rounding mode selector per lift (round down / nearest / up) ✅
+  - Default values: 2.5 kg increment, round down ✅
+- [x] Update `utils/calculations.ts`:
+  - Modify `roundToPlate` to accept rounding mode ✅
+  - Update `generateFullProgram` to use per-lift settings ✅
+- [x] Update tests:
+  - `hooks/useSettings.test.ts` - test per-lift settings persistence ✅
+  - `utils/calculations.test.ts` - test all rounding modes ✅
+  - `__tests__/app/settings.test.tsx` - test per-lift UI ✅
+
+**Success Criteria:**
+- Each lift can have its own increment setting ✅
+- Each lift can have its own rounding mode ✅
+- Settings UI clearly shows per-lift configuration ✅
+- Calculated program uses correct settings per lift ✅
+- Backwards compatible - existing users get sensible defaults ✅
+- All tests pass (81 tests) ✅
+- Passes `make lint-frontend` and `make test-frontend` ✅
+
+**Files modified:**
+- `types/program.ts` ✅
+- `hooks/useSettings.ts` ✅
+- `hooks/useSettings.test.ts` ✅
+- `app/settings.tsx` ✅
+- `__tests__/app/settings.test.tsx` ✅
+- `utils/calculations.ts` ✅
+- `utils/calculations.test.ts` ✅
+
+---
+
 ## Quality Checklist
 
 Before marking any task complete, verify:

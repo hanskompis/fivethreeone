@@ -31,34 +31,88 @@ describe('Settings Screen', () => {
     });
   });
 
-  it('renders rounding options', async () => {
+  it('renders all four lift cards', async () => {
     const { getByText } = render(<Settings />);
 
     await waitFor(() => {
-      expect(getByText('1.25 kg')).toBeTruthy();
+      expect(getByText('Bench Press')).toBeTruthy();
+      expect(getByText('Squat')).toBeTruthy();
+      expect(getByText('Overhead Press')).toBeTruthy();
+      expect(getByText('Deadlift')).toBeTruthy();
+    });
+  });
+
+  it('expands lift details when header is tapped', async () => {
+    const { getByTestId, getByText } = render(<Settings />);
+
+    await waitFor(() => {
+      expect(getByTestId('lift-header-bench')).toBeTruthy();
+    });
+
+    fireEvent.press(getByTestId('lift-header-bench'));
+
+    await waitFor(() => {
+      expect(getByText('Weight Increment')).toBeTruthy();
+      expect(getByText('Rounding Mode')).toBeTruthy();
+    });
+  });
+
+  it('renders increment options when lift is expanded', async () => {
+    const { getByTestId, getByText } = render(<Settings />);
+
+    await waitFor(() => {
+      expect(getByTestId('lift-header-bench')).toBeTruthy();
+    });
+
+    fireEvent.press(getByTestId('lift-header-bench'));
+
+    await waitFor(() => {
       expect(getByText('2.5 kg')).toBeTruthy();
       expect(getByText('5 kg')).toBeTruthy();
+      expect(getByText('10 kg')).toBeTruthy();
     });
   });
 
-  it('shows 2.5 kg as default selected option', async () => {
-    const { getByTestId } = render(<Settings />);
+  it('renders rounding mode options when lift is expanded', async () => {
+    const { getByTestId, getByText } = render(<Settings />);
 
     await waitFor(() => {
-      const button = getByTestId('rounding-2.5');
-      // Check if button has active style (backgroundColor would be different)
-      expect(button).toBeTruthy();
+      fireEvent.press(getByTestId('lift-header-squat'));
+    });
+
+    await waitFor(() => {
+      expect(getByText('Round Down')).toBeTruthy();
+      expect(getByText('Round Nearest')).toBeTruthy();
+      expect(getByText('Round Up')).toBeTruthy();
     });
   });
 
-  it('saves setting when rounding option is selected', async () => {
+  it('saves per-lift increment setting', async () => {
     const { getByTestId } = render(<Settings />);
 
     await waitFor(() => {
-      expect(getByTestId('rounding-5')).toBeTruthy();
+      fireEvent.press(getByTestId('lift-header-bench'));
     });
 
-    fireEvent.press(getByTestId('rounding-5'));
+    await waitFor(() => {
+      fireEvent.press(getByTestId('bench-increment-5'));
+    });
+
+    await waitFor(() => {
+      expect(AsyncStorage.setItem).toHaveBeenCalled();
+    });
+  });
+
+  it('saves per-lift rounding mode setting', async () => {
+    const { getByTestId } = render(<Settings />);
+
+    await waitFor(() => {
+      fireEvent.press(getByTestId('lift-header-ohp'));
+    });
+
+    await waitFor(() => {
+      fireEvent.press(getByTestId('ohp-rounding-nearest'));
+    });
 
     await waitFor(() => {
       expect(AsyncStorage.setItem).toHaveBeenCalled();

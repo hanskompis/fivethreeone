@@ -26,14 +26,24 @@ describe('useSettings', () => {
 
     expect(result.current.settings).toEqual({
       unit: 'kg',
-      roundingIncrement: 2.5,
+      liftSettings: {
+        bench: { increment: 2.5, roundingMode: 'down' },
+        squat: { increment: 2.5, roundingMode: 'down' },
+        ohp: { increment: 2.5, roundingMode: 'down' },
+        deadlift: { increment: 2.5, roundingMode: 'down' },
+      },
     });
   });
 
   it('loads saved settings from AsyncStorage', async () => {
     const savedSettings = {
       unit: 'lbs',
-      roundingIncrement: 5,
+      liftSettings: {
+        bench: { increment: 5, roundingMode: 'down' },
+        squat: { increment: 5, roundingMode: 'nearest' },
+        ohp: { increment: 2.5, roundingMode: 'up' },
+        deadlift: { increment: 10, roundingMode: 'down' },
+      },
     };
     (AsyncStorage.getItem as jest.Mock).mockResolvedValue(
       JSON.stringify(savedSettings)
@@ -48,7 +58,33 @@ describe('useSettings', () => {
     expect(result.current.settings).toEqual(savedSettings);
   });
 
-  it('updates settings and saves to AsyncStorage', async () => {
+  it('loads settings from AsyncStorage', async () => {
+    const savedSettings = {
+      unit: 'lbs',
+      liftSettings: {
+        bench: { increment: 5, roundingMode: 'up' },
+        squat: { increment: 10, roundingMode: 'nearest' },
+        ohp: { increment: 2.5, roundingMode: 'down' },
+        deadlift: { increment: 10, roundingMode: 'down' },
+      },
+    };
+    (AsyncStorage.getItem as jest.Mock).mockResolvedValue(
+      JSON.stringify(savedSettings)
+    );
+
+    const { result } = renderHook(() => useSettings());
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+
+    expect(result.current.settings.unit).toBe('lbs');
+    expect(result.current.settings.liftSettings.bench.increment).toBe(5);
+    expect(result.current.settings.liftSettings.bench.roundingMode).toBe('up');
+    expect(result.current.settings.liftSettings.squat.increment).toBe(10);
+  });
+
+  it('updates per-lift settings and saves to AsyncStorage', async () => {
     const { result } = renderHook(() => useSettings());
 
     await waitFor(() => {
@@ -56,20 +92,28 @@ describe('useSettings', () => {
     });
 
     await act(async () => {
-      await result.current.updateSettings({ roundingIncrement: 5 });
+      await result.current.updateSettings({
+        liftSettings: {
+          ...result.current.settings.liftSettings,
+          bench: { increment: 5, roundingMode: 'nearest' },
+        },
+      });
     });
 
-    expect(AsyncStorage.setItem).toHaveBeenCalledWith(
-      '@fivethreeone_settings',
-      JSON.stringify({ unit: 'kg', roundingIncrement: 5 })
-    );
-    expect(result.current.settings.roundingIncrement).toBe(5);
+    expect(AsyncStorage.setItem).toHaveBeenCalled();
+    expect(result.current.settings.liftSettings.bench.increment).toBe(5);
+    expect(result.current.settings.liftSettings.bench.roundingMode).toBe('nearest');
   });
 
   it('resets settings to defaults', async () => {
     const savedSettings = {
       unit: 'lbs',
-      roundingIncrement: 5,
+      liftSettings: {
+        bench: { increment: 5, roundingMode: 'up' },
+        squat: { increment: 10, roundingMode: 'nearest' },
+        ohp: { increment: 5, roundingMode: 'down' },
+        deadlift: { increment: 10, roundingMode: 'up' },
+      },
     };
     (AsyncStorage.getItem as jest.Mock).mockResolvedValue(
       JSON.stringify(savedSettings)
@@ -88,7 +132,12 @@ describe('useSettings', () => {
     expect(AsyncStorage.removeItem).toHaveBeenCalled();
     expect(result.current.settings).toEqual({
       unit: 'kg',
-      roundingIncrement: 2.5,
+      liftSettings: {
+        bench: { increment: 2.5, roundingMode: 'down' },
+        squat: { increment: 2.5, roundingMode: 'down' },
+        ohp: { increment: 2.5, roundingMode: 'down' },
+        deadlift: { increment: 2.5, roundingMode: 'down' },
+      },
     });
   });
 

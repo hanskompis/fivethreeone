@@ -19,6 +19,7 @@ import {
   Program,
   WEEK_CONFIG,
   LIFT_DISPLAY_NAMES,
+  RoundingMode,
 } from '../types/program';
 
 /**
@@ -29,10 +30,24 @@ export const calculateTrainingMax = (oneRepMax: number): number => {
 };
 
 /**
- * Round weight to nearest plate increment (rounds down to ensure liftable weight)
+ * Round weight to plate increment based on rounding mode
+ * - 'down': Round down to ensure liftable weight
+ * - 'nearest': Round to nearest increment
+ * - 'up': Round up for progressive overload
  */
-export const roundToPlate = (weight: number, increment: number): number => {
-  return Math.floor(weight / increment) * increment;
+export const roundToPlate = (
+  weight: number,
+  increment: number,
+  mode: RoundingMode = 'down'
+): number => {
+  switch (mode) {
+    case 'down':
+      return Math.floor(weight / increment) * increment;
+    case 'up':
+      return Math.ceil(weight / increment) * increment;
+    case 'nearest':
+      return Math.round(weight / increment) * increment;
+  }
 };
 
 /**
@@ -41,13 +56,14 @@ export const roundToPlate = (weight: number, increment: number): number => {
 export const calculateWeekSets = (
   trainingMax: number,
   weekNumber: 1 | 2 | 3 | 4,
-  roundingIncrement: number
+  increment: number,
+  roundingMode: RoundingMode
 ): WorkoutSet[] => {
   const config = WEEK_CONFIG[weekNumber];
 
   return config.percentages.map((percentage, index) => ({
     percentage: percentage * 100,
-    weight: roundToPlate(trainingMax * percentage, roundingIncrement),
+    weight: roundToPlate(trainingMax * percentage, increment, roundingMode),
     reps: config.reps[index],
     isAMRAP: index === config.amrapSet,
   }));
@@ -60,7 +76,8 @@ export const generateWorkoutDay = (
   lift: LiftName,
   oneRepMax: number,
   weekNumber: 1 | 2 | 3 | 4,
-  roundingIncrement: number
+  increment: number,
+  roundingMode: RoundingMode
 ): WorkoutDay => {
   const trainingMax = calculateTrainingMax(oneRepMax);
 
@@ -68,7 +85,7 @@ export const generateWorkoutDay = (
     lift,
     liftDisplayName: LIFT_DISPLAY_NAMES[lift],
     trainingMax: trainingMax,
-    sets: calculateWeekSets(trainingMax, weekNumber, roundingIncrement),
+    sets: calculateWeekSets(trainingMax, weekNumber, increment, roundingMode),
   };
 };
 
@@ -78,16 +95,23 @@ export const generateWorkoutDay = (
 export const generateWeek = (
   lifts: LiftValues,
   weekNumber: 1 | 2 | 3 | 4,
-  roundingIncrement: number
+  settings: Settings
 ): Week => {
   const config = WEEK_CONFIG[weekNumber];
   const liftNames: LiftName[] = ['squat', 'bench', 'deadlift', 'ohp'];
 
   const workouts = liftNames
     .filter((lift) => lifts[lift] > 0)
-    .map((lift) =>
-      generateWorkoutDay(lift, lifts[lift], weekNumber, roundingIncrement)
-    );
+    .map((lift) => {
+      const liftSettings = settings.liftSettings[lift];
+      return generateWorkoutDay(
+        lift,
+        lifts[lift],
+        weekNumber,
+        liftSettings.increment,
+        liftSettings.roundingMode
+      );
+    });
 
   return {
     weekNumber,
@@ -104,7 +128,7 @@ export const generateFullProgram = (
   settings: Settings
 ): Program => {
   const weeks: Week[] = [1, 2, 3, 4].map((weekNum) =>
-    generateWeek(lifts, weekNum as 1 | 2 | 3 | 4, settings.roundingIncrement)
+    generateWeek(lifts, weekNum as 1 | 2 | 3 | 4, settings)
   );
 
   return {

@@ -1,12 +1,22 @@
 import { useState, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Settings } from '../types/program';
+import { Settings, LiftSettings } from '../types/program';
 
 const SETTINGS_KEY = '@fivethreeone_settings';
 
+const defaultLiftSettings: LiftSettings = {
+  increment: 2.5,
+  roundingMode: 'down',
+};
+
 const defaultSettings: Settings = {
   unit: 'kg',
-  roundingIncrement: 2.5,
+  liftSettings: {
+    bench: { ...defaultLiftSettings },
+    squat: { ...defaultLiftSettings },
+    ohp: { ...defaultLiftSettings },
+    deadlift: { ...defaultLiftSettings },
+  },
 };
 
 interface UseSettingsReturn {
@@ -26,7 +36,8 @@ export const useSettings = (): UseSettingsReturn => {
       try {
         const saved = await AsyncStorage.getItem(SETTINGS_KEY);
         if (saved) {
-          setSettings({ ...defaultSettings, ...JSON.parse(saved) });
+          const parsedSettings = JSON.parse(saved);
+          setSettings({ ...defaultSettings, ...parsedSettings });
         }
       } catch (error) {
         console.error('Failed to load settings:', error);

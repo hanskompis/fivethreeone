@@ -11,9 +11,16 @@ export interface LiftValues {
 
 export type LiftName = keyof LiftValues;
 
+export type RoundingMode = 'down' | 'nearest' | 'up';
+
+export interface LiftSettings {
+  increment: number; // e.g., 2.5, 5, 10 kg
+  roundingMode: RoundingMode;
+}
+
 export interface Settings {
   unit: 'kg' | 'lbs';
-  roundingIncrement: number; // e.g., 2.5 for kg, 5 for lbs
+  liftSettings: Record<LiftName, LiftSettings>;
 }
 
 export interface WorkoutSet {
