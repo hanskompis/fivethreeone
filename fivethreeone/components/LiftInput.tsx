@@ -16,12 +16,12 @@ export const LiftInput = ({
   testID,
 }: LiftInputProps) => {
   const handleTextChange = (text: string) => {
-    // Only allow positive numbers
-    const sanitized = text.replace(/[^0-9.]/g, '');
-    // Prevent multiple decimal points
-    const parts = sanitized.split('.');
+    // Only allow positive numbers with comma as decimal separator
+    const sanitized = text.replace(/[^0-9,]/g, '');
+    // Prevent multiple decimal separators
+    const parts = sanitized.split(',');
     const cleanValue = parts.length > 2 
-      ? parts[0] + '.' + parts.slice(1).join('')
+      ? parts[0] + ',' + parts.slice(1).join('')
       : sanitized;
     onChangeText(cleanValue);
   };

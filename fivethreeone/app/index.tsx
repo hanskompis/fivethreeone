@@ -66,13 +66,13 @@ export default function Index() {
 
   const handleCalculate = () => {
     // Validate that at least one lift has a value
-    const hasValues = Object.values(lifts).some((v) => v && parseFloat(v) > 0);
+    const hasValues = Object.values(lifts).some((v) => v && parseFloat(v.replace(',', '.')) > 0);
     if (hasValues) {
       router.push('/program');
     }
   };
 
-  const isValid = Object.values(lifts).some((v) => v && parseFloat(v) > 0);
+  const isValid = Object.values(lifts).some((v) => v && parseFloat(v.replace(',', '.')) > 0);
 
   if (isLoading) {
     return (

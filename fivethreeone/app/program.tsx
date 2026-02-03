@@ -51,10 +51,10 @@ export default function ProgramScreen() {
       return { bench: 0, squat: 0, ohp: 0, deadlift: 0 };
     }
     return {
-      bench: parseFloat(storedLifts.bench) || 0,
-      squat: parseFloat(storedLifts.squat) || 0,
-      ohp: parseFloat(storedLifts.ohp) || 0,
-      deadlift: parseFloat(storedLifts.deadlift) || 0,
+      bench: parseFloat(storedLifts.bench.replace(',', '.')) || 0,
+      squat: parseFloat(storedLifts.squat.replace(',', '.')) || 0,
+      ohp: parseFloat(storedLifts.ohp.replace(',', '.')) || 0,
+      deadlift: parseFloat(storedLifts.deadlift.replace(',', '.')) || 0,
     };
   }, [storedLifts]);
 

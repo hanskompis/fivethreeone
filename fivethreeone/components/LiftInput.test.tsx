@@ -74,9 +74,9 @@ describe('LiftInput', () => {
     );
 
     const input = getByTestId('bench-input');
-    fireEvent.changeText(input, '102.5');
+    fireEvent.changeText(input, '102,5');
 
-    expect(mockOnChange).toHaveBeenCalledWith('102.5');
+    expect(mockOnChange).toHaveBeenCalledWith('102,5');
   });
 
   it('displays kg unit', () => {
