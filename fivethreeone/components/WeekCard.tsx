@@ -1,13 +1,15 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { Week } from '../types/program';
+import { Week, LiftName } from '../types/program';
 import { WorkoutDay } from './WorkoutDay';
 
 interface WeekCardProps {
   week: Week;
   unit: 'kg' | 'lbs';
+  isCompleted?: (lift: LiftName) => boolean;
+  onToggleComplete?: (lift: LiftName) => void;
 }
 
-export const WeekCard = ({ week, unit }: WeekCardProps) => {
+export const WeekCard = ({ week, unit, isCompleted, onToggleComplete }: WeekCardProps) => {
   return (
     <View style={styles.container} testID={`week-${week.weekNumber}`}>
       <View style={styles.header}>
@@ -16,7 +18,13 @@ export const WeekCard = ({ week, unit }: WeekCardProps) => {
       </View>
       <View style={styles.workoutsContainer}>
         {week.workouts.map((workout) => (
-          <WorkoutDay key={workout.lift} workout={workout} unit={unit} />
+          <WorkoutDay
+            key={workout.lift}
+            workout={workout}
+            unit={unit}
+            isCompleted={isCompleted?.(workout.lift)}
+            onToggleComplete={() => onToggleComplete?.(workout.lift)}
+          />
         ))}
       </View>
     </View>

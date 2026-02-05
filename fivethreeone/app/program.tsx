@@ -12,6 +12,7 @@ import { generateFullProgram } from '../utils/calculations';
 import { LiftValues, Program, Settings } from '../types/program';
 import { WeekCard } from '../components/WeekCard';
 import { useSettings } from '../hooks/useSettings';
+import { useCompletions } from '../hooks/useCompletions';
 
 const LIFTS_STORAGE_KEY = '@fivethreeone_lifts';
 
@@ -24,6 +25,7 @@ interface StoredLifts {
 
 export default function ProgramScreen() {
   const { settings, isLoading: settingsLoading } = useSettings();
+  const { isCompleted, toggleCompletion, isLoading: completionsLoading } = useCompletions();
   const [storedLifts, setStoredLifts] = useState<StoredLifts | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedWeek, setSelectedWeek] = useState<number>(1);
@@ -65,7 +67,7 @@ export default function ProgramScreen() {
     return generateFullProgram(liftValues, settings as Settings);
   }, [liftValues, settings]);
 
-  if (isLoading || settingsLoading) {
+  if (isLoading || settingsLoading || completionsLoading) {
     return (
       <View style={styles.container}>
         <Text style={styles.loadingText}>Loading...</Text>
@@ -126,7 +128,12 @@ export default function ProgramScreen() {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <WeekCard week={currentWeek} unit={settings.unit} />
+        <WeekCard
+          week={currentWeek}
+          unit={settings.unit}
+          isCompleted={(lift) => isCompleted(currentWeek.weekNumber, lift)}
+          onToggleComplete={(lift) => toggleCompletion(currentWeek.weekNumber, lift)}
+        />
 
         <TouchableOpacity
           style={styles.editButton}

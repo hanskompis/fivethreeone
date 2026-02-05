@@ -1,17 +1,29 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { WorkoutDay as WorkoutDayType } from '../types/program';
 import { SetRow } from './SetRow';
 
 interface WorkoutDayProps {
   workout: WorkoutDayType;
   unit: 'kg' | 'lbs';
+  isCompleted?: boolean;
+  onToggleComplete?: () => void;
 }
 
-export const WorkoutDay = ({ workout, unit }: WorkoutDayProps) => {
+export const WorkoutDay = ({ workout, unit, isCompleted = false, onToggleComplete }: WorkoutDayProps) => {
   return (
-    <View style={styles.container} testID={`workout-${workout.lift}`}>
+    <TouchableOpacity
+      style={[styles.container, isCompleted && styles.containerCompleted]}
+      onPress={onToggleComplete}
+      activeOpacity={0.7}
+      testID={`workout-${workout.lift}`}
+    >
       <View style={styles.header}>
-        <Text style={styles.liftName}>{workout.liftDisplayName}</Text>
+        <View style={styles.titleRow}>
+          <Text style={[styles.liftName, isCompleted && styles.liftNameCompleted]}>
+            {workout.liftDisplayName}
+          </Text>
+          {isCompleted && <Text style={styles.checkmark}>✓</Text>}
+        </View>
         <Text style={styles.trainingMax}>
           TM: {workout.trainingMax} {unit}
         </Text>
@@ -26,13 +38,21 @@ export const WorkoutDay = ({ workout, unit }: WorkoutDayProps) => {
           />
         ))}
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     marginBottom: 24,
+    padding: 16,
+    borderRadius: 12,
+    backgroundColor: 'transparent',
+  },
+  containerCompleted: {
+    backgroundColor: 'rgba(34, 197, 94, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(34, 197, 94, 0.3)',
   },
   header: {
     flexDirection: 'row',
@@ -40,10 +60,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 12,
   },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   liftName: {
     fontSize: 20,
     fontWeight: '700',
     color: '#fff',
+  },
+  liftNameCompleted: {
+    color: '#22c55e',
+  },
+  checkmark: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#22c55e',
   },
   trainingMax: {
     fontSize: 14,

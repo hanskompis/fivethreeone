@@ -13,6 +13,16 @@ jest.mock('expo-router', () => ({
 jest.mock('@react-native-async-storage/async-storage', () => ({
   getItem: jest.fn(),
   setItem: jest.fn(),
+  removeItem: jest.fn(),
+}));
+
+// Mock useCompletions hook
+const mockResetCompletions = jest.fn();
+jest.mock('../../hooks/useCompletions', () => ({
+  useCompletions: () => ({
+    resetCompletions: mockResetCompletions,
+    isLoading: false,
+  }),
 }));
 
 // Mock react-native-reanimated
@@ -110,5 +120,44 @@ describe('Index Screen', () => {
       const button = getByTestId('calculate-button');
       expect(button.props.accessibilityState?.disabled).toBeFalsy();
     });
+  });
+
+  it('resets all values and completions when reset button pressed', async () => {
+    const savedLifts = {
+      bench: '100',
+      squat: '140',
+      ohp: '60',
+      deadlift: '180',
+    };
+    (AsyncStorage.getItem as jest.Mock).mockResolvedValue(
+      JSON.stringify(savedLifts)
+    );
+
+    const { getByTestId, getByDisplayValue } = render(<Index />);
+
+    // Wait for values to load
+    await waitFor(() => {
+      expect(getByDisplayValue('100')).toBeTruthy();
+    });
+
+    // Press reset button
+    const resetButton = getByTestId('reset-button');
+    fireEvent.press(resetButton);
+
+    // Verify AsyncStorage was updated with empty values
+    await waitFor(() => {
+      expect(AsyncStorage.setItem).toHaveBeenCalledWith(
+        '@fivethreeone_lifts',
+        JSON.stringify({
+          bench: '',
+          squat: '',
+          ohp: '',
+          deadlift: '',
+        })
+      );
+    });
+
+    // Verify completions were reset
+    expect(mockResetCompletions).toHaveBeenCalled();
   });
 });
