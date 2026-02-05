@@ -133,16 +133,26 @@ describe('Index Screen', () => {
       JSON.stringify(savedLifts)
     );
 
-    const { getByTestId, getByDisplayValue } = render(<Index />);
+    const { getByTestId, getByDisplayValue, getAllByText } = render(<Index />);
 
     // Wait for values to load
     await waitFor(() => {
       expect(getByDisplayValue('100')).toBeTruthy();
     });
 
-    // Press reset button
+    // Press reset button to show dialog
     const resetButton = getByTestId('reset-button');
     fireEvent.press(resetButton);
+
+    // Wait for dialog to appear and confirm - use getAllByText since title appears in both button and dialog
+    await waitFor(() => {
+      expect(getAllByText('Reset Progress').length).toBeGreaterThan(0);
+    });
+
+    // Press the confirm button in the dialog (the second "Reset" text)
+    const resetTexts = getAllByText('Reset');
+    const confirmButton = resetTexts[resetTexts.length - 1]; // Get the last one (in dialog)
+    fireEvent.press(confirmButton);
 
     // Verify AsyncStorage was updated with empty values
     await waitFor(() => {

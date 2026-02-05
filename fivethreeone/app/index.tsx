@@ -11,6 +11,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { LiftInput } from '../components/LiftInput';
 import { useCompletions } from '../hooks/useCompletions';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 import { styles } from './index.styles';
 
 const STORAGE_KEY = '@fivethreeone_lifts';
@@ -32,6 +33,7 @@ const defaultLifts: LiftValues = {
 export default function Index() {
   const [lifts, setLifts] = useState<LiftValues>(defaultLifts);
   const [isLoading, setIsLoading] = useState(true);
+  const [showResetDialog, setShowResetDialog] = useState(false);
   const { resetCompletions, isLoading: completionsLoading } = useCompletions();
 
   // Load saved values on mount
@@ -76,7 +78,12 @@ export default function Index() {
 
   const isValid = Object.values(lifts).some((v) => v && parseFloat(v.replace(',', '.')) > 0);
 
-  const handleReset = async () => {
+  const handleResetPress = () => {
+    setShowResetDialog(true);
+  };
+
+  const handleResetConfirm = async () => {
+    setShowResetDialog(false);
     try {
       setLifts(defaultLifts);
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(defaultLifts));
@@ -84,6 +91,10 @@ export default function Index() {
     } catch (error) {
       console.error('Failed to reset:', error);
     }
+  };
+
+  const handleResetCancel = () => {
+    setShowResetDialog(false);
   };
 
   if (isLoading || completionsLoading) {
@@ -145,12 +156,22 @@ export default function Index() {
 
         <TouchableOpacity
           style={styles.resetButton}
-          onPress={handleReset}
+          onPress={handleResetPress}
           testID="reset-button"
         >
           <Text style={styles.resetButtonText}>Reset Progress</Text>
         </TouchableOpacity>
       </ScrollView>
+
+      <ConfirmDialog
+        visible={showResetDialog}
+        title="Reset Progress"
+        message="This will clear all lift values and completion progress. Are you sure?"
+        onConfirm={handleResetConfirm}
+        onCancel={handleResetCancel}
+        confirmText="Reset"
+        cancelText="Cancel"
+      />
     </KeyboardAvoidingView>
   );
 }
