@@ -44,3 +44,6 @@ app-example
 
 # copilot instructions
 .github/
+
+/ios
+/android
