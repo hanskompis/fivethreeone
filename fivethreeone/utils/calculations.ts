@@ -47,6 +47,9 @@ export const roundToPlate = (
       return Math.ceil(weight / increment) * increment;
     case 'nearest':
       return Math.round(weight / increment) * increment;
+    default:
+      const _exhaustive: never = mode;
+      return _exhaustive;
   }
 };
 

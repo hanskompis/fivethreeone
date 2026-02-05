@@ -14,7 +14,7 @@ export type LiftName = keyof LiftValues;
 export type RoundingMode = 'down' | 'nearest' | 'up';
 
 export interface LiftSettings {
-  increment: number; // e.g., 2.5, 5, 10 kg
+  increment: number;
   roundingMode: RoundingMode;
 }
 
